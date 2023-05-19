@@ -49,10 +49,10 @@ const freqency = oneMinute;
 
 // First run
 checkPageSpeed('mobile', freqency);
-// checkPageSpeed('desktop');
+// checkPageSpeed('desktop', freqency);
 
 // Run periodically
 setInterval(() => {
   checkPageSpeed('mobile', freqency);
-  // checkPageSpeed('desktop');
+  // checkPageSpeed('desktop', freqency);
 }, freqency);
