@@ -1,6 +1,6 @@
 # Page Speed Check
 
-This is a simple application that checks the Google Page Speed Insights score of your webpage. It is based on Node.js and uses Google's Pagespeed Insights API to analyze the performance of a web page and provide suggestions to make that page faster.
+This is a simple node script that checks the Google Page Speed Insights score of your webpage automatically / periodically. Uses the Google Page Speed Insights API. 
 
 ## Prerequisites
 
