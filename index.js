@@ -3,16 +3,28 @@ const fetch = require('cross-fetch');
 const chalk = require('chalk');
 
 const URL_ARG_INDEX = 2;
+const DOMAIN = process.argv[URL_ARG_INDEX];
 const MINUTE = 60000;
 const DEFAULT_STRATEGY = 'mobile';
 
-if (!process.argv[URL_ARG_INDEX]) {
-  console.log(chalk.yellow('Please provide a URL to test'));
-  console.log(chalk.yellow('Example: npm start -- mysite.com'));
+if (!DOMAIN) {
+  console.log(chalk.red('Please provide a URL to test'));
+  console.log(chalk.red('Example: npm start -- mysite.com'));
   process.exit(1);
 }
 
-const url = `https://${encodeURIComponent(process.argv[URL_ARG_INDEX])}`;
+// check if DOMAIN is a valid URL (get that it has a .com, .org, etc.)
+if (!DOMAIN.includes('.')) {
+  console.log(chalk.red('Please provide a valid URL'));
+  console.log(chalk.red(`You provided: ${DOMAIN}`));
+  // log a space
+  console.log();
+  console.log(chalk.white(`Command should look like this: `));
+  console.log(chalk.blue(`npm start -- mysite.com`));
+  process.exit(1);
+}
+
+const url = `https://${encodeURIComponent(DOMAIN)}`;
 const apiKey = process.env.API_KEY;
 let firstRun = true;
 
