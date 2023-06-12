@@ -13,11 +13,17 @@ if (!DOMAIN) {
   process.exit(1);
 }
 
-// check if DOMAIN is a valid URL (get that it has a .com, .org, etc.)
 if (!DOMAIN.includes('.')) {
   console.log(chalk.red('Please provide a valid URL'));
   console.log(chalk.red(`You provided: ${DOMAIN}`));
-  // log a space
+  console.log();
+  console.log(chalk.white(`Command should look like this: `));
+  console.log(chalk.blue(`npm start -- mysite.com`));
+  process.exit(1);
+}
+
+if (process.argv.length > 1) {
+  console.log(chalk.red('Too many arguments provided'));
   console.log();
   console.log(chalk.white(`Command should look like this: `));
   console.log(chalk.blue(`npm start -- mysite.com`));
