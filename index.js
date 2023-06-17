@@ -22,7 +22,7 @@ if (!DOMAIN.includes('.')) {
   process.exit(1);
 }
 
-if (process.argv.length > 1) {
+if (process.argv.length > 3) {
   console.log(chalk.red('Too many arguments provided'));
   console.log();
   console.log(chalk.white(`Command should look like this: `));
