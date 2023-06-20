@@ -3,9 +3,10 @@ const fetch = require('cross-fetch');
 const chalk = require('chalk');
 
 const URL_ARG_INDEX = 2;
+const STRATEGY_ARG_INDEX = 3;
 const DOMAIN = process.argv[URL_ARG_INDEX];
+const STRATEGY = process.argv[STRATEGY_ARG_INDEX] || 'mobile'; // defaults to 'mobile' if not provided
 const MINUTE = 60000;
-const DEFAULT_STRATEGY = 'mobile';
 
 if (!DOMAIN) {
   console.log(chalk.red('Please provide a URL to test'));
@@ -22,11 +23,16 @@ if (!DOMAIN.includes('.')) {
   process.exit(1);
 }
 
-if (process.argv.length > 3) {
+if (!['mobile', 'desktop', 'both'].includes(STRATEGY)) {
+  console.log(chalk.red('Invalid strategy provided. It should be either "mobile", "desktop" or "both".'));
+  process.exit(1);
+}
+
+if (process.argv.length > 4) {
   console.log(chalk.red('Too many arguments provided'));
   console.log();
   console.log(chalk.white(`Command should look like this: `));
-  console.log(chalk.blue(`npm start -- mysite.com`));
+  console.log(chalk.blue(`npm start -- mysite.com mobile`));
   process.exit(1);
 }
 
@@ -58,7 +64,7 @@ function displayFirstRunDetails(strategy, apiEndpoint, frequencyInMinutes) {
   console.log();
 }
 
-async function checkPageSpeed(strategy = DEFAULT_STRATEGY) {
+async function checkPageSpeed(strategy) {
   const apiEndpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${url}&key=${apiKey}&strategy=${strategy}`;
 
   if (firstRun) {
@@ -73,8 +79,16 @@ async function checkPageSpeed(strategy = DEFAULT_STRATEGY) {
   // You can now store this score and timestamp in a database to keep track over time
 }
 
-// First run
-checkPageSpeed();
-
-// Run periodically
-setInterval(checkPageSpeed, MINUTE);
+if (STRATEGY === 'both') {
+  // Run for both mobile and desktop if 'both' is provided as strategy
+  checkPageSpeed('mobile');
+  checkPageSpeed('desktop');
+  setInterval(() => {
+    checkPageSpeed('mobile');
+    checkPageSpeed('desktop');
+  }, MINUTE);
+} else {
+  // Run only for the provided strategy
+  checkPageSpeed(STRATEGY);
+  setInterval(checkPageSpeed, MINUTE, STRATEGY);
+}
