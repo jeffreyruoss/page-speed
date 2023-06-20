@@ -79,27 +79,37 @@ async function checkPageSpeed(strategy) {
 
   const data = await fetchFromEndpoint(apiEndpoint);
 
-  console.log(`${strategy.toUpperCase()} Page Speed Score: `, data.lighthouseResult.categories.performance.score * 100);
-  // You can now store this score and timestamp in a database to keep track over time
+  let output = {};
+
+  console.log(strategy.toUpperCase());
+  output["Page Speed Score: "] = data.lighthouseResult.categories.performance.score * 100;
 
   if (METRICS === 'default') {
-    displayMetrics(data);
+    displayMetrics(data, output);
   }
+
+  // for the values of output, remove non-numeric characters and convert to number
+  for (let key in output) {
+    if (typeof output[key] === 'string') { // check if the value is a string
+      output[key] = parseFloat(output[key].replace(/[^0-9.]/g, ''));
+    }
+  }
+
+  console.table(output);
 }
 
-function displayMetrics(data) {
-  const metrics = {
-    'First Contentful Paint': data.lighthouseResult.audits['first-contentful-paint'].displayValue,
-    'Total Blocking Time': data.lighthouseResult.audits['total-blocking-time'].displayValue,
-    'Largest Contentful Paint': data.lighthouseResult.audits['largest-contentful-paint'].displayValue,
-    'Speed Index': data.lighthouseResult.audits['speed-index'].displayValue,
-    'Cumulative Layout Shift': data.lighthouseResult.audits['cumulative-layout-shift'].displayValue
-  };
+function displayMetrics(data, output) {
+  output["First Contentful Paint: "] = data.lighthouseResult.audits['first-contentful-paint'].displayValue;
+  output["Total Blocking Time: "] = data.lighthouseResult.audits['total-blocking-time'].displayValue;
+  output["Largest Contentful Paint: "] = data.lighthouseResult.audits['largest-contentful-paint'].displayValue;
+  output["Speed Index: "] = data.lighthouseResult.audits['speed-index'].displayValue;
+  output["Cumulative Layout Shift: "] = data.lighthouseResult.audits['cumulative-layout-shift'].displayValue;
 
-  console.log('Metrics:');
-  for (let metric in metrics) {
-    console.log(metric + ': ' + metrics[metric]);
-  }
+  // console.log('Metrics:');
+  // for (let metric in metrics) {
+    // console.log(metric + ': ' + metrics[metric]);
+  // }
+  // console.table(metrics);
 }
 
 
