@@ -4,8 +4,10 @@ const chalk = require('chalk');
 
 const URL_ARG_INDEX = 2;
 const STRATEGY_ARG_INDEX = 3;
+const METRICS_ARG_INDEX = 4;
 const DOMAIN = process.argv[URL_ARG_INDEX];
 const STRATEGY = process.argv[STRATEGY_ARG_INDEX] || 'mobile'; // defaults to 'mobile' if not provided
+const METRICS = process.argv[METRICS_ARG_INDEX] || 'default'; // defaults to 'default' if not provided
 const MINUTE = 60000;
 
 if (!DOMAIN) {
@@ -28,7 +30,7 @@ if (!['mobile', 'desktop', 'both'].includes(STRATEGY)) {
   process.exit(1);
 }
 
-if (process.argv.length > 4) {
+if (process.argv.length > 5) {
   console.log(chalk.red('Too many arguments provided'));
   console.log();
   console.log(chalk.white(`Command should look like this: `));
@@ -71,7 +73,7 @@ async function checkPageSpeed(strategy) {
 
   if (firstRun) {
     const frequencyInMinutes = MINUTE / MINUTE;
-    displayFirstRunDetails(strategy, apiEndpoint, frequencyInMinutes);
+    displayFirstRunDetails([strategy], [apiEndpoint], frequencyInMinutes);
     firstRun = false;
   }
 
@@ -79,7 +81,27 @@ async function checkPageSpeed(strategy) {
 
   console.log(`${strategy.toUpperCase()} Page Speed Score: `, data.lighthouseResult.categories.performance.score * 100);
   // You can now store this score and timestamp in a database to keep track over time
+
+  if (METRICS === 'default') {
+    displayMetrics(data);
+  }
 }
+
+function displayMetrics(data) {
+  const metrics = {
+    'First Contentful Paint': data.lighthouseResult.audits['first-contentful-paint'].displayValue,
+    'Total Blocking Time': data.lighthouseResult.audits['total-blocking-time'].displayValue,
+    'Largest Contentful Paint': data.lighthouseResult.audits['largest-contentful-paint'].displayValue,
+    'Speed Index': data.lighthouseResult.audits['speed-index'].displayValue,
+    'Cumulative Layout Shift': data.lighthouseResult.audits['cumulative-layout-shift'].displayValue
+  };
+
+  console.log('Metrics:');
+  for (let metric in metrics) {
+    console.log(metric + ': ' + metrics[metric]);
+  }
+}
+
 
 if (STRATEGY === 'both') {
   // Run for both mobile and desktop if 'both' is provided as strategy
