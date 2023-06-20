@@ -52,13 +52,15 @@ async function fetchFromEndpoint(apiEndpoint) {
   }
 }
 
-function displayFirstRunDetails(strategy, apiEndpoint, frequencyInMinutes) {
-  console.log(chalk.gray(`Running ${strategy.toUpperCase()} Page Speed Test on:`)); 
-  console.log(chalk.blue(url));
-  console.log();
-  console.log(chalk.gray('API Endpoint:')); 
-  console.log(chalk.blue(apiEndpoint));
-  console.log();
+function displayFirstRunDetails(strategies, apiEndpoints, frequencyInMinutes) {
+  strategies.forEach((strategy, index) => {
+    console.log(chalk.gray(`Running ${strategy.toUpperCase()} Page Speed Test on:`)); 
+    console.log(chalk.blue(url));
+    console.log();
+    console.log(chalk.gray('API Endpoint:')); 
+    console.log(chalk.blue(apiEndpoints[index]));
+    console.log();
+  });
   console.log(chalk.gray('Checking every')); 
   console.log(chalk.blue(`${frequencyInMinutes} minutes`));
   console.log();
@@ -81,6 +83,15 @@ async function checkPageSpeed(strategy) {
 
 if (STRATEGY === 'both') {
   // Run for both mobile and desktop if 'both' is provided as strategy
+  const apiEndpointMobile = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${url}&key=${apiKey}&strategy=mobile`;
+  const apiEndpointDesktop = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${url}&key=${apiKey}&strategy=desktop`;
+
+  if (firstRun) {
+    const frequencyInMinutes = MINUTE / MINUTE;
+    displayFirstRunDetails(['mobile', 'desktop'], [apiEndpointMobile, apiEndpointDesktop], frequencyInMinutes);
+    firstRun = false;
+  }
+
   checkPageSpeed('mobile');
   checkPageSpeed('desktop');
   setInterval(() => {
@@ -89,6 +100,14 @@ if (STRATEGY === 'both') {
   }, MINUTE);
 } else {
   // Run only for the provided strategy
+  const apiEndpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${url}&key=${apiKey}&strategy=${STRATEGY}`;
+
+  if (firstRun) {
+    const frequencyInMinutes = MINUTE / MINUTE;
+    displayFirstRunDetails([STRATEGY], [apiEndpoint], frequencyInMinutes);
+    firstRun = false;
+  }
+
   checkPageSpeed(STRATEGY);
   setInterval(checkPageSpeed, MINUTE, STRATEGY);
 }
