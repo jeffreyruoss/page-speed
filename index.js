@@ -1,6 +1,16 @@
 require('dotenv').config();
 const fetch = require('cross-fetch');
 const chalk = require('chalk');
+const fs = require('fs');
+
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, 'data');
+
+// Create data directory if it does not exist
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR);
+}
 
 const URL_ARG_INDEX = 2;
 const STRATEGY_ARG_INDEX = 3;
@@ -37,6 +47,11 @@ if (process.argv.length > 5) {
   console.log(chalk.blue(`npm start -- mysite.com mobile`));
   process.exit(1);
 }
+
+const currentDate = new Date();
+const dateStr = `${currentDate.getMonth()+1}-${currentDate.getDate()}-${currentDate.getFullYear()}`;
+const jsonFilename = path.join(DATA_DIR, `${dateStr}_${DOMAIN}.json`);
+
 
 const url = `https://${encodeURIComponent(DOMAIN)}`;
 const apiKey = process.env.API_KEY;
@@ -96,6 +111,28 @@ async function checkPageSpeed(strategy) {
   }
 
   console.table(output);
+
+  try {
+    // Check if file exists
+    if (!fs.existsSync(jsonFilename)) {
+      // If file does not exist, create it with the output as the first element of an array
+      fs.writeFileSync(jsonFilename, JSON.stringify({[strategy]: [output]}, null, 2));
+    } else {
+      const fileContent = JSON.parse(fs.readFileSync(jsonFilename));
+      // If the strategy does not exist in the file content, add it
+      if (!fileContent[strategy]) {
+        fileContent[strategy] = [output];
+      } else {
+        // If the strategy exists, append the output to its array
+        fileContent[strategy].push(output);
+      }
+      fs.writeFileSync(jsonFilename, JSON.stringify(fileContent, null, 2));
+    }
+  } catch (error) {
+    console.error(chalk.red('Error writing to file:', jsonFilename));
+    console.error(error);
+  }
+  
 }
 
 function displayMetrics(data, output) {
