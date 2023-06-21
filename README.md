@@ -45,11 +45,23 @@ This is a simple node script that checks the Google Page Speed Insights score of
    npm start -- mysite.com
    ```
 
-2. By default, the script tests the mobile strategy. If you want to test the desktop strategy, uncomment the relevant line of code in the script.
+2. By default, the script tests the mobile strategy. If you want to test the desktop strategy or both, use the 2nd arg
+   ```bash
+   npm start -- mysite.com mobile
+   or
+   npm start -- mysite.com desktop
+   or
+   npm start -- mysite.com both
+   ```
 
-3. The script runs once and then every minute (or however frequently you set the `freqency` variable to).
+3. If you want just the score and no metrics add none as the 3rd arg
+   ```bash
+   npm start -- mysite.com mobile none
+   ```
 
-4. The script logs the Page Speed score to the console, and you can modify it to store the score and timestamp in a database.
+4. The script runs once and then every minute (or however frequently you set the `freqency` variable to).
+
+5. Data is saved as json to the /data directory
 
 ## Troubleshooting
 
